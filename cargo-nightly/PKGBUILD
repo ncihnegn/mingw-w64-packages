@@ -3,22 +3,22 @@ _channel=nightly
 pkgname="${MINGW_PACKAGE_PREFIX}-${_name}-${_channel}"
 pkgdesc='The Rust package manager'
 arch=('i686' 'x86_64')
-pkgver=0.3.0.20150607
+pkgver=0.3.0.20150621
 pkgrel=1
 license=('MIT' 'Apache')
 url='http://crates.io'
-_dir="cargo-nightly-${CARCH}-pc-windows-gnu"
-_srcurl='https://static.rust-lang.org/cargo-dist'
+_dir="${_name}-nightly-${CARCH}-pc-windows-gnu"
+_srcurl="https://static.rust-lang.org/${_name}-dist"
 source="${_srcurl}/${_dir}.tar.gz"
 md5sums='SKIP'
 makedepends=('curl')
 depends=("${MINGW_PACKAGE_PREFIX}-rustc-nightly")
-provides=("${MINGW_PACKAGE_PREFIX}-cargo")
-conflicts=("${MINGW_PACKAGE_PREFIX}-cargo" "${MINGW_PACKAGE_PREFIX}-cargo-git")
+provides=("${MINGW_PACKAGE_PREFIX}-${_name}")
+conflicts=("${MINGW_PACKAGE_PREFIX}-${_name}" "${MINGW_PACKAGE_PREFIX}-${_name}-git")
 
 pkgver() {
   cd ${srcdir}/${_dir}
-	echo $(cargo -V | sed 's/cargo //g' | sed 's/-nightly.*built /./g' | sed 's/[()-]//g')
+	echo $(${_name}/bin/${_name} -V | sed 's/cargo //g' | sed 's/ (built.*//g' | sed 's/-nightly (.* /./g' | sed 's/[()-]//g')
 }
 
 package() {
