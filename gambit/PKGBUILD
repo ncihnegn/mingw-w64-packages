@@ -9,8 +9,8 @@ license=('LGPL' 'Apache')
 arch=('any')
 provides=("${MINGW_PACKAGE_PREFIX}-${_realname}")
 conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}")
-makedepends=("${MINGW_PACKAGE_PREFIX}-gcc"
-             "git")
+depends=("${MINGW_PACKAGE_PREFIX}-gcc")
+makedepends=("git")
 options=('strip')
 source=("${_realname}"::"git+https://github.com/feeley/${_realname}.git")
 sha256sums=('SKIP')
@@ -28,6 +28,11 @@ prepare() {
 build() {
   cd "${_realname}"
   make
+}
+
+check() {
+  cd "${_realname}"
+  make check
 }
 
 package() {
