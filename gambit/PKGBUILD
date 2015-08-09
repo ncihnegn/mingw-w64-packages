@@ -1,0 +1,36 @@
+
+_realname='gambit'
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgver=4.7.7
+pkgrel=1
+pkgdesc="The Gambit Scheme system is a complete, portable, efficient and reliable implementation of the Scheme programming language"
+url="http://www.gambitscheme.org"
+license=('LGPL' 'Apache')
+arch=('any')
+conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}-git")
+depends=("${MINGW_PACKAGE_PREFIX}-gcc")
+options=('strip')
+_filename=gambc-v4_7_7-devel
+source=("http://www.iro.umontreal.ca/~gambit/download/gambit/v4.7/source/${_filename}.tgz")
+sha256sums=('SKIP')
+
+prepare() {
+  cd "${_filename}"
+  ./configure --prefix=/mingw64 --enable-single-host --enable-c-opt --enable-gcc-opts
+}
+
+build() {
+  cd "${_filename}"
+  make
+}
+
+check() {
+  cd "${_filename}"
+  make check
+}
+
+package() {
+  cd "${_filename}"
+  make DESTDIR="${pkgdir}" install
+}
+
