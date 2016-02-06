@@ -1,33 +1,36 @@
-_name=rustc
+_name=rust
 _channel=nightly
 pkgname="${MINGW_PACKAGE_PREFIX}-${_name}-${_channel}"
 pkgdesc='A compiler for Rust, a safe, concurrent, practical language'
 arch=('i686' 'x86_64')
-pkgver=1.2.0.20150620
+pkgver=1.8.0.20160204
 pkgrel=1
 license=('MIT' 'Apache')
 url='http://www.rust-lang.org'
 _dir="${_name}-nightly-${CARCH}-pc-windows-gnu"
 _srcurl='https://static.rust-lang.org/dist'
-source="${_srcurl}/${_dir}.tar.gz"
-md5sums='SKIP'
+_compiler=${_name}c
+source=("${_srcurl}/${_dir}.tar.gz")
+md5sums=('SKIP')
 makedepends=('curl')
 depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs")
-provides=("${MINGW_PACKAGE_PREFIX}-rust" "${MINGW_PACKAGE_PREFIX}-${_name}")
-conflicts=("${MINGW_PACKAGE_PREFIX}-rust" "${MINGW_PACKAGE_PREFIX}-${_name}"
-  "${MINGW_PACKAGE_PREFIX}-rust-git" "${MINGW_PACKAGE_PREFIX}-${_name}-git")
+provides=("${MINGW_PACKAGE_PREFIX}-rust" "${MINGW_PACKAGE_PREFIX}-rustc" "${MINGW_PACKAGE_PREFIX}-cargo")
+conflicts=("${MINGW_PACKAGE_PREFIX}-rust" "${MINGW_PACKAGE_PREFIX}-rust-git"
+           "${MINGW_PACKAGE_PREFIX}-rustc" "${MINGW_PACKAGE_PREFIX}-rustc-git"
+           "${MINGW_PACKAGE_PREFIX}-cargo" "${MINGW_PACKAGE_PREFIX}-cargo-git")
 
 pkgver() {
   cd ${srcdir}/${_dir}
-	echo $(${_name}/bin/${_name} -V | sed 's/rustc //g' | sed 's/ (built.*//g' | sed 's/-nightly (.* /./g' | sed 's/[()-]//g')
+	echo $(${_compiler}/bin/${_compiler} -V | sed 's/rustc //g' | sed 's/ (built.*//g' | sed 's/-nightly (.* /./g' | sed 's/[()-]//g')
 }
 
 package() {
   cd ${srcdir}/${_dir}
+  sed -i '/rust-mingw/d' components
   ./install.sh --prefix=${pkgdir}/${MINGW_PREFIX}
   rm ${pkgdir}/${MINGW_PREFIX}/bin/libstdc++-*.dll
   rm ${pkgdir}/${MINGW_PREFIX}/bin/libgcc_s_*.dll
   rm ${pkgdir}/${MINGW_PREFIX}/lib/rustlib/uninstall.sh
   rm ${pkgdir}/${MINGW_PREFIX}/lib/rustlib/install.log
-  sed -i "s%${pkgdir}%%g" ${pkgdir}/${MINGW_PREFIX}/lib/rustlib/manifest-${_name}
+  sed -i "s%${pkgdir}%%g" ${pkgdir}/${MINGW_PREFIX}/lib/rustlib/manifest-*
 }
