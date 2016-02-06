@@ -1,0 +1,42 @@
+
+_realname='gambit'
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}-git"
+pkgver=r1507.eb47d3d
+pkgrel=1
+pkgdesc="The Gambit Scheme system is a complete, portable, efficient and reliable implementation of the Scheme programming language"
+url="http://www.gambitscheme.org"
+license=('LGPL' 'Apache')
+arch=('any')
+provides=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+depends=("${MINGW_PACKAGE_PREFIX}-gcc")
+makedepends=("git")
+options=('strip')
+source=("${_realname}"::"git+https://github.com/feeley/${_realname}.git")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd "${_realname}"
+  printf 'r%s.%s' "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+prepare() {
+  cd "${_realname}"
+  ./configure --prefix=/mingw64 --enable-single-host --enable-c-opt --enable-gcc-opts
+}
+
+build() {
+  cd "${_realname}"
+  make
+}
+
+check() {
+  cd "${_realname}"
+  make check
+}
+
+package() {
+  cd "${_realname}"
+  make DESTDIR="${pkgdir}" install
+}
+

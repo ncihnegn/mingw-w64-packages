@@ -1,0 +1,36 @@
+
+_realname='bigloo'
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgver=4.2a
+pkgrel=1
+pkgdesc="Bigloo Scheme compiler"
+url="http://www-sop.inria.fr/indes/fp/Bigloo/bigloo-2.html"
+license=('LGPL')
+arch=('any')
+conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}-git")
+depends=("${MINGW_PACKAGE_PREFIX}-gcc")
+options=('strip')
+_filename=${_realname}${pkgver}
+source=("https://sandjsite.net/jwd/files/${_filename}.tar.gz")
+sha256sums=('SKIP')
+
+prepare() {
+  cd "${_filename}"
+  ./configure --prefix=/mingw64 --disable-libuv --disable-wav
+}
+
+build() {
+  cd "${_filename}"
+  make
+}
+
+check() {
+  cd "${_filename}"
+  make test
+}
+
+package() {
+  cd "${_filename}"
+  make DESTDIR="${pkgdir}" install
+}
+
