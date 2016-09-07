@@ -3,7 +3,7 @@ pkgname="${MINGW_PACKAGE_PREFIX}-${_name}"
 pkgdesc='The Glorious Glasgow Haskell Compilation System'
 arch=('i686' 'x86_64')
 pkgver=8.0.1
-pkgrel=6
+pkgrel=7
 url='http://www.haskell.org/ghc/'
 depends=('perl'
          "${MINGW_PACKAGE_PREFIX}-binutils" "${MINGW_PACKAGE_PREFIX}-crt-git"
@@ -67,7 +67,7 @@ package() {
 
 md5sums=('c185b8a1f3e67e43533ec590b751c2ff'
          '289e4b030a3e36cdcae7d35553a1c658'
-         'bb44c00761892f17114f308e7e280add'
+         'b775f232fe7d73e7a0c3d0ab23ad3c48'
          'b68f5887575becd05feb010211a95164'
          '70648788a9f41efd1b304553771139a9'
          '505e49f6ce1c89b7ae1b5d7233762567'

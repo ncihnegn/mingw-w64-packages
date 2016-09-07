@@ -8,7 +8,7 @@
 # Uncomment one of these to select a build profile below:
 
 # Full build with max optimisation and everything enabled (very slow build)
-#BuildFlavour = perf
+BuildFlavour = perf
 
 # As above but build GHC using the LLVM backend
 #BuildFlavour = perf-llvm
@@ -17,7 +17,7 @@
 #BuildFlavour = perf-cross
 
 # Fast build with optimised libraries, no profiling (RECOMMENDED):
-BuildFlavour = quick
+#BuildFlavour = quick
 
 # Fast build with optimised libraries, no profiling, with LLVM:
 #BuildFlavour = quick-llvm
