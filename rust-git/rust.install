@@ -1,0 +1,7 @@
+pre_upgrade() {
+        cp ${MINGW_PREFIX}/lib/rustlib/components ${MINGW_PREFIX}/lib/rustlib/components.bak
+}
+post_upgrade() {
+        cat ${MINGW_PREFIX}/lib/rustlib/components >> ${MINGW_PREFIX}/lib/rustlib/components.bak
+        sort ${MINGW_PREFIX}/lib/rustlib/components.bak | uniq > ${MINGW_PREFIX}/lib/rustlib/components
+}
