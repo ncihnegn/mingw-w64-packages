@@ -2,13 +2,13 @@ _realname=rust
 pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}-git"
 pkgdesc='Rust, a system programming language'
 arch=('any')
-pkgver=1.13.0.20160913
+pkgver=1.14.0.20161010
 pkgrel=1
 url='http://www.rust-lang.org'
 license=('MIT' 'Apache 2.0')
 provides=("${MINGW_PACKAGE_PREFIX}-${_realname}}")
 depends=("${MINGW_PACKAGE_PREFIX}-gcc-libs")
-makedepends=('curl' 'python2' "${MINGW_PACKAGE_PREFIX}-gcc" "${MINGW_PACKAGE_PREFIX}-llvm")
+makedepends=('bison' 'flex' 'git' "${MINGW_PACKAGE_PREFIX}-cmake" "${MINGW_PACKAGE_PREFIX}-gcc" "${MINGW_PACKAGE_PREFIX}-llvm" "${MINGW_PACKAGE_PREFIX}-python2")
 install='rust.install'
 source=(
   'git+https://github.com/rust-lang/rust'
@@ -24,13 +24,16 @@ pkgver() {
 }
 
 prepare() {
-  patch -d "${_realname}" -p1 < 0001-Unstaged.patch
-  patch -d "${_realname}/src/rust-installer" -p1 < 0001-rust-installer-Unstaged.patch
+  cd "${_realname}"
+  git submodule foreach --recursive git clean -dxf
+  git submodule foreach --recursive git checkout .
+  patch -d "src/rust-installer" -p1 < ../0001-rust-installer-Unstaged.patch
 }
 
 build() {
   cd "${_realname}"
-  ./configure --prefix=${MINGW_PREFIX} --llvm-root=${MINGW_PREFIX}
+  patch -p1 < ../0001-Unstaged.patch
+  ./configure --prefix=${MINGW_PREFIX} --llvm-root=${MINGW_PREFIX} --release-channel=nightly
   make -j4
 }
 
@@ -42,10 +45,10 @@ check() {
 package() {
   cd "${_realname}"
   make DESTDIR=$pkgdir install
-  rm $pkgdir/mingw64/bin/libgcc*.dll
-  rm $pkgdir/mingw64/bin/libstdc*.dll
+  rm $pkgdir/${MINGW_PREFIX}/bin/libgcc*.dll
+  rm $pkgdir/${MINGW_PREFIX}/bin/libstdc*.dll
 }
 
 md5sums=('SKIP'
-         '52fa875b35eafd00ddf7193982ed8fc8'
-         '6a322fe9012b7797df825818a1b88da8')
+         'ae2ee8a7b3e48903c38a0c7cfc34b645'
+         '5a3299e5f03ac6863ec26ae15a9d95d9')

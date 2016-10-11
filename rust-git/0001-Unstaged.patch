@@ -1,19 +1,38 @@
 diff --git a/configure b/configure
-index a8bd3ac..3ed667d 100755
+index 6cef35b..6f01d08 100755
 --- a/configure
 +++ b/configure
-@@ -1477,11 +1477,11 @@ then
-     msg "git: submodule status"
-     "${CFG_GIT}" submodule status --recursive
+
+@@ -1464,17 +1464,17 @@ then
+         "${CFG_GIT}" submodule deinit src/jemalloc
+     fi
  
--    msg "git: submodule clobber"
--    "${CFG_GIT}" submodule foreach --recursive git clean -dxf
+-    msg "git: submodule update"
+-    "${CFG_GIT}" submodule update
 -    need_ok "git failed"
++    #msg "git: submodule update"
++    #"${CFG_GIT}" submodule update
++    #need_ok "git failed"
+ 
+     msg "git: submodule foreach sync"
+     "${CFG_GIT}" submodule foreach --recursive 'if test -e .gitmodules; then git submodule sync; fi'
+     need_ok "git failed"
+ 
+-    msg "git: submodule foreach update"
+-    "${CFG_GIT}" submodule update --recursive
+-    need_ok "git failed"
++    #msg "git: submodule foreach update"
++    #"${CFG_GIT}" submodule update --recursive
++    #need_ok "git failed"
+ 
+     # NB: this is just for the sake of getting the submodule SHA1 values
+     # and status written into the build log.
+@@ -1484,8 +1484,8 @@ then
+     msg "git: submodule clobber"
+     "${CFG_GIT}" submodule foreach --recursive git clean -dxf
+     need_ok "git failed"
 -    "${CFG_GIT}" submodule foreach --recursive git checkout .
 -    need_ok "git failed"
-+    #msg "git: submodule clobber"
-+    #"${CFG_GIT}" submodule foreach --recursive git clean -dxf
-+    #need_ok "git failed"
 +    #"${CFG_GIT}" submodule foreach --recursive git checkout .
 +    #need_ok "git failed"
  
@@ -44,10 +63,10 @@ index 50c68d5..be6dd53 100644
 +#[link(name = "pthread")]
  extern {}
 diff --git a/src/librustc_trans/back/link.rs b/src/librustc_trans/back/link.rs
-index 288249a..78e2b7d 100644
+index 5a8c5cb..30744d7 100644
 --- a/src/librustc_trans/back/link.rs
 +++ b/src/librustc_trans/back/link.rs
-@@ -1115,9 +1115,11 @@ fn add_upstream_native_libraries(cmd: &mut Linker, sess: &Session) {
+@@ -1118,9 +1118,11 @@ fn add_upstream_native_libraries(cmd: &mut Linker, sess: &Session) {
      // we're just getting an ordering of crate numbers, we're not worried about
      // the paths.
      let crates = sess.cstore.used_crates(LinkagePreference::RequireStatic);
@@ -60,7 +79,7 @@ index 288249a..78e2b7d 100644
              match kind {
                  NativeLibraryKind::NativeUnknown => cmd.link_dylib(lib),
                  NativeLibraryKind::NativeFramework => cmd.link_framework(lib),
-@@ -1126,5 +1128,8 @@ fn add_upstream_native_libraries(cmd: &mut Linker, sess: &Session) {
+@@ -1129,5 +1131,8 @@ fn add_upstream_native_libraries(cmd: &mut Linker, sess: &Session) {
                  }
              }
          }
@@ -70,7 +89,7 @@ index 288249a..78e2b7d 100644
      }
  }
 diff --git a/src/libunwind/build.rs b/src/libunwind/build.rs
-index fd446f5..1fb48d7 100644
+index e1ddf8b..2924799 100644
 --- a/src/libunwind/build.rs
 +++ b/src/libunwind/build.rs
 @@ -35,5 +35,6 @@ fn main() {
@@ -81,10 +100,10 @@ index fd446f5..1fb48d7 100644
      }
  }
 diff --git a/src/libunwind/libunwind.rs b/src/libunwind/libunwind.rs
-index 3900ba6..3922ddc 100644
+index c2edf75..c913244 100644
 --- a/src/libunwind/libunwind.rs
 +++ b/src/libunwind/libunwind.rs
-@@ -263,5 +263,7 @@ if #[cfg(not(all(target_os = "ios", target_arch = "arm")))] {
+@@ -264,5 +264,7 @@ if #[cfg(not(all(target_os = "ios", target_arch = "arm")))] {
             link(name = "c++abi"))]
  #[cfg_attr(all(target_os = "windows", target_env = "gnu"),
             link(name = "gcc_eh"))]
@@ -92,9 +111,3 @@ index 3900ba6..3922ddc 100644
 +           link(name = "pthread"))]
  #[cfg(not(cargobuild))]
  extern "C" {}
-diff --git a/src/rust-installer b/src/rust-installer
---- a/src/rust-installer
-+++ b/src/rust-installer
-@@ -1 +1 @@
--Subproject commit 755bc3db4ff795865ea31b5b4f38ac920d8acacb
-+Subproject commit 755bc3db4ff795865ea31b5b4f38ac920d8acacb-dirty
