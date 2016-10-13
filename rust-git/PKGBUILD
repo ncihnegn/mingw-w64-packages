@@ -13,7 +13,6 @@ install='rust.install'
 source=(
   'git+https://github.com/rust-lang/rust'
   '0001-Unstaged.patch'
-  '0001-rust-installer-Unstaged.patch'
 )
 
 pkgver() {
@@ -25,9 +24,7 @@ pkgver() {
 
 prepare() {
   cd "${_realname}"
-  git submodule foreach --recursive git clean -dxf
-  git submodule foreach --recursive git checkout .
-  patch -d "src/rust-installer" -p1 < ../0001-rust-installer-Unstaged.patch
+  git submodule update --init
 }
 
 build() {
@@ -50,5 +47,4 @@ package() {
 }
 
 md5sums=('SKIP'
-         'ae2ee8a7b3e48903c38a0c7cfc34b645'
-         '5a3299e5f03ac6863ec26ae15a9d95d9')
+         '71472e3b03324210b35189f636acebc0')

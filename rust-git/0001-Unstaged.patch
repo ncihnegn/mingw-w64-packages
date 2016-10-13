@@ -1,43 +1,3 @@
-diff --git a/configure b/configure
-index 6cef35b..6f01d08 100755
---- a/configure
-+++ b/configure
-
-@@ -1464,17 +1464,17 @@ then
-         "${CFG_GIT}" submodule deinit src/jemalloc
-     fi
- 
--    msg "git: submodule update"
--    "${CFG_GIT}" submodule update
--    need_ok "git failed"
-+    #msg "git: submodule update"
-+    #"${CFG_GIT}" submodule update
-+    #need_ok "git failed"
- 
-     msg "git: submodule foreach sync"
-     "${CFG_GIT}" submodule foreach --recursive 'if test -e .gitmodules; then git submodule sync; fi'
-     need_ok "git failed"
- 
--    msg "git: submodule foreach update"
--    "${CFG_GIT}" submodule update --recursive
--    need_ok "git failed"
-+    #msg "git: submodule foreach update"
-+    #"${CFG_GIT}" submodule update --recursive
-+    #need_ok "git failed"
- 
-     # NB: this is just for the sake of getting the submodule SHA1 values
-     # and status written into the build log.
-@@ -1484,8 +1484,8 @@ then
-     msg "git: submodule clobber"
-     "${CFG_GIT}" submodule foreach --recursive git clean -dxf
-     need_ok "git failed"
--    "${CFG_GIT}" submodule foreach --recursive git checkout .
--    need_ok "git failed"
-+    #"${CFG_GIT}" submodule foreach --recursive git checkout .
-+    #need_ok "git failed"
- 
-     cd ${CFG_BUILD_DIR}
- fi
 diff --git a/src/libpanic_unwind/gcc.rs b/src/libpanic_unwind/gcc.rs
 index 33b24fb..97d147e 100644
 --- a/src/libpanic_unwind/gcc.rs
@@ -62,32 +22,6 @@ index 50c68d5..be6dd53 100644
 +#[link(name = "gcc_eh")]
 +#[link(name = "pthread")]
  extern {}
-diff --git a/src/librustc_trans/back/link.rs b/src/librustc_trans/back/link.rs
-index 5a8c5cb..30744d7 100644
---- a/src/librustc_trans/back/link.rs
-+++ b/src/librustc_trans/back/link.rs
-@@ -1118,9 +1118,11 @@ fn add_upstream_native_libraries(cmd: &mut Linker, sess: &Session) {
-     // we're just getting an ordering of crate numbers, we're not worried about
-     // the paths.
-     let crates = sess.cstore.used_crates(LinkagePreference::RequireStatic);
--    for (cnum, _) in crates {
-+    for (cnum, path) in crates {
-         let libs = sess.cstore.native_libraries(cnum);
-+        let mut lib_names = "".to_string();
-         for &(kind, ref lib) in &libs {
-+            lib_names = lib_names + lib + " ";
-             match kind {
-                 NativeLibraryKind::NativeUnknown => cmd.link_dylib(lib),
-                 NativeLibraryKind::NativeFramework => cmd.link_framework(lib),
-@@ -1129,5 +1131,8 @@ fn add_upstream_native_libraries(cmd: &mut Linker, sess: &Session) {
-                 }
-             }
-         }
-+        if sess.verbose() {
-+            sess.note_without_error(&format!("{:?} {}", path, lib_names));
-+        }
-     }
- }
 diff --git a/src/libunwind/build.rs b/src/libunwind/build.rs
 index e1ddf8b..2924799 100644
 --- a/src/libunwind/build.rs
