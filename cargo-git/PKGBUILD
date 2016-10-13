@@ -1,0 +1,51 @@
+# Maintainer: ncihnegn <ningchen@outlook.com>
+
+_realname=cargo
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}-git"
+pkgdesc='The Rust package manager'
+arch=('any')
+pkgver=0.13.0.20160926
+pkgrel=1
+url='https://crates.io'
+license=('MIT' 'Apache')
+depends=("${MINGW_PACKAGE_PREFIX}-rust-git")
+makedepends=("${MINGW_PACKAGE_PREFIX}-python3" "${MINGW_PACKAGE_PREFIX}-cmake")
+source=(
+  'git+https://github.com/rust-lang/cargo'
+)
+install='cargo.install'
+md5sums=('SKIP')
+
+pkgver() {
+  cd "${_realname}"
+  rel=`grep ^version Cargo.toml | sed 's/[version =""]//g'`
+  date=`git log -1 --date=short --pretty=format:'%cd' | sed 's/-//g'`
+  echo $rel.$date
+}
+
+prepare() {
+  cd "${_realname}"
+  git submodule update --init
+}
+
+build() {
+  cd "${_realname}"
+  ./configure --prefix=${MINGW_PREFIX} --enable-nightly
+  make -j2
+}
+
+check() {
+  cd "${_realname}"
+  make test
+}
+
+package() {
+  cd "${_realname}"
+  mkdir -p $pkgdir${MINGW_PREFIX}/lib/rustlib
+  make DESTDIR=$pkgdir install
+  rm $pkgdir${MINGW_PREFIX}/lib/rustlib/components
+  rm $pkgdir${MINGW_PREFIX}/lib/rustlib/install.log
+  rm $pkgdir${MINGW_PREFIX}/lib/rustlib/rust-installer-version
+  rm $pkgdir${MINGW_PREFIX}/lib/rustlib/uninstall.sh
+}
+
