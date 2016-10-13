@@ -1,19 +1,28 @@
 _realname=ghc
+pkgbase=mingw-w64-${_realname}
 pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
 pkgdesc='The Glorious Glasgow Haskell Compilation System'
 arch=('any')
 pkgver=8.0.1
 pkgrel=1
 url='http://www.haskell.org/ghc/'
-depends=("${MINGW_PACKAGE_PREFIX}-binutils" "${MINGW_PACKAGE_PREFIX}-crt-git"
-        "${MINGW_PACKAGE_PREFIX}-gcc" "${MINGW_PACKAGE_PREFIX}-gcc-libs"
-        "${MINGW_PACKAGE_PREFIX}-gmp" "${MINGW_PACKAGE_PREFIX}-gcc-libs"
-        "${MINGW_PACKAGE_PREFIX}-headers" "${MINGW_PACKAGE_PREFIX}-isl"
-        "${MINGW_PACKAGE_PREFIX}-libiconv" "${MINGW_PACKAGE_PREFIX}-libwinpthread"
-        "${MINGW_PACKAGE_PREFIX}-mpc" "${MINGW_PACKAGE_PREFIX}-mpfr"
-        "${MINGW_PACKAGE_PREFIX}-winpthreads-git" "${MINGW_PACKAGE_PREFIX}-zlib")
-makedepends=('perl' "${MINGW_PACKAGE_PREFIX}-python3-sphinx")
-optdepends=("${MINGW_PACKAGE_PREFIX}-llvm")
+license=('The Glasgow Haskell Compiler License')
+depends=("${MINGW_PACKAGE_PREFIX}-binutils"
+         "${MINGW_PACKAGE_PREFIX}-crt-git"
+         "${MINGW_PACKAGE_PREFIX}-gcc"
+         "${MINGW_PACKAGE_PREFIX}-gcc-libs"
+         "${MINGW_PACKAGE_PREFIX}-gmp"
+         "${MINGW_PACKAGE_PREFIX}-headers"
+         "${MINGW_PACKAGE_PREFIX}-isl"
+         "${MINGW_PACKAGE_PREFIX}-libiconv"
+         "${MINGW_PACKAGE_PREFIX}-libwinpthread"
+         "${MINGW_PACKAGE_PREFIX}-mpc"
+         "${MINGW_PACKAGE_PREFIX}-mpfr"
+         "${MINGW_PACKAGE_PREFIX}-winpthreads-git"
+         "${MINGW_PACKAGE_PREFIX}-zlib")
+makedepends=('perl' 'unzip' "${MINGW_PACKAGE_PREFIX}-python3-sphinx")
+optdepends=("${MINGW_PACKAGE_PREFIX}-llvm: using LLVM as backend")
+options=('!strip')
 source=(
   "http://downloads.haskell.org/~ghc/$pkgver/ghc-$pkgver-src.tar.xz"
   "http://downloads.haskell.org/~ghc/$pkgver/ghc-$pkgver-testsuite.tar.xz"
@@ -28,16 +37,17 @@ source=(
   '0001-configure.ac-Remove-checks-for-bug-9439.patch'
   '0001-Fix-configure-detection.patch'
   '0001-Unstaged.patch'
-#  "http://downloads.haskell.org/~${_realname}/$pkgver/${_realname}-$pkgver-$CARCH-unknown-mingw32.tar.xz"
-  "https://www.haskell.org/cabal/release/cabal-install-1.24.0.0/cabal-install-1.24.0.0-$CARCH-unknown-mingw32.zip"
 )
-noextract=("http://downloads.haskell.org/~${_realname}/$pkgver/${_realname}-$pkgver-$CARCH-unknown-mingw32.tar.xz")
 
 prepare() {
-  wget -c "http://downloads.haskell.org/~${_realname}/$pkgver/${_realname}-$pkgver-$CARCH-unknown-mingw32.tar.xz"
-  mkdir host
-  tar Jxf ${_realname}-$pkgver-$CARCH-unknown-mingw32.tar.xz -C host --strip-components=1
-  mv cabal.exe host/bin
+  SYST=$CARCH
+  if [[ $SYST == "i686" ]]; then
+     SYST="i386"
+  fi
+  mkdir -p host
+  curl -LO "https://www.haskell.org/cabal/release/cabal-install-1.24.0.0/cabal-install-1.24.0.0-$SYST-unknown-mingw32.zip"
+  curl -L "http://downloads.haskell.org/~${_realname}/$pkgver/${_realname}-$pkgver-$SYST-unknown-mingw32.tar.xz" | tar -Jx --strip-components=1 --directory=host
+  unzip -o cabal-install-1.24.0.0-$SYST-unknown-mingw32.zip -d host/bin
   export PATH=$srcdir/host/bin:$PATH
   cabal update
   cabal install alex happy --prefix=$srcdir/host
@@ -60,9 +70,8 @@ build() {
   ./boot
   ./configure --prefix=${MINGW_PREFIX}
   make
-  make html
-  #Need xelatex
-  #make pdf
+  #make html #Need sphinx
+  make pdf #Need xelatex
 }
 
 check() {
@@ -80,9 +89,9 @@ package() {
 
 md5sums=('c185b8a1f3e67e43533ec590b751c2ff'
          '289e4b030a3e36cdcae7d35553a1c658'
-         'b337697c2b46eea2c989f11f3dd1ee28'
+         'c6f5e6f59fba0b94da201131c665a530'
          'b68f5887575becd05feb010211a95164'
-         '70648788a9f41efd1b304553771139a9'
+         '9420b494411a3e9faf743102fcff528b'
          '505e49f6ce1c89b7ae1b5d7233762567'
          '3c094d3c1a49de3c0eb3398733bb001c'
          '82ef617a59ec0e536e3e428aba9e7557'
@@ -90,20 +99,4 @@ md5sums=('c185b8a1f3e67e43533ec590b751c2ff'
          '3db250cba393fdd3713c422a815e7d85'
          '769794184c2e50cb36cadcddc8b4f906'
          '08f498c8ec46c1e9d0afb645c1bdc104'
-         'ac49ab508c167c6fe1b548fcd6e2398e'
-         '29b97103ddea14fb43d52c75ff75eb95'
-         '7d792ee7600ea6f9d62028b1229aebb4')
-md5sums=('c185b8a1f3e67e43533ec590b751c2ff'
-         '289e4b030a3e36cdcae7d35553a1c658'
-         'b337697c2b46eea2c989f11f3dd1ee28'
-         'b68f5887575becd05feb010211a95164'
-         '70648788a9f41efd1b304553771139a9'
-         '505e49f6ce1c89b7ae1b5d7233762567'
-         '3c094d3c1a49de3c0eb3398733bb001c'
-         '82ef617a59ec0e536e3e428aba9e7557'
-         'e25a592304825be687b645049eba3bc5'
-         '3db250cba393fdd3713c422a815e7d85'
-         '769794184c2e50cb36cadcddc8b4f906'
-         '08f498c8ec46c1e9d0afb645c1bdc104'
-         'ac49ab508c167c6fe1b548fcd6e2398e'
-         '7d792ee7600ea6f9d62028b1229aebb4')
+         'ac49ab508c167c6fe1b548fcd6e2398e')

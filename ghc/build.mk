@@ -80,7 +80,7 @@ V=0
 BUILD_EXTRA_PKGS=YES
 
 # Uncomment the following line to enable building DPH
-#BUILD_DPH=YES
+BUILD_DPH=YES
 
 # Uncomment the following to force `integer-gmp` to use the in-tree GMP 5.0.4
 # (other sometimes useful configure-options: `--with-gmp-{includes,libraries}`)
