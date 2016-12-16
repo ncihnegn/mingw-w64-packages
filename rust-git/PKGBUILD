@@ -2,7 +2,7 @@ _realname=rust
 pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}-git"
 pkgdesc='Rust, a system programming language'
 arch=('any')
-pkgver=1.14.0.20161010
+pkgver=1.15.0.20161212
 pkgrel=1
 url='http://www.rust-lang.org'
 license=('MIT' 'Apache 2.0')
@@ -30,7 +30,7 @@ prepare() {
 build() {
   cd "${_realname}"
   patch -p1 < ../0001-Unstaged.patch
-  ./configure --prefix=${MINGW_PREFIX} --llvm-root=${MINGW_PREFIX} --release-channel=nightly
+  ./configure --prefix=${MINGW_PREFIX} --llvm-root=${MINGW_PREFIX} --release-channel=nightly --enable-fast-make --enable-ccache --enable-dist-host-only
   make -j4
 }
 
@@ -47,4 +47,4 @@ package() {
 }
 
 md5sums=('SKIP'
-         '71472e3b03324210b35189f636acebc0')
+         '0fa41c786c692c0cef681909c70c95d4')
