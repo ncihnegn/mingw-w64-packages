@@ -4,7 +4,7 @@ _realname=cargo
 pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}-git"
 pkgdesc='The Rust package manager'
 arch=('any')
-pkgver=0.13.0.20160926
+pkgver=0.16.0.20161216
 pkgrel=1
 url='https://crates.io'
 license=('MIT' 'Apache')
@@ -30,7 +30,7 @@ prepare() {
 
 build() {
   cd "${_realname}"
-  ./configure --prefix=${MINGW_PREFIX} --enable-nightly
+  ./configure --prefix=${MINGW_PREFIX}
   make -j2
 }
 
