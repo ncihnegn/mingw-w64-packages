@@ -1,0 +1,24 @@
+_realname=ocamlbuild
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgdesc='OCamlbuild is a generic build tool, that has built-in rules for building OCaml library and programs'
+arch=('any')
+pkgver=0.10.1
+pkgrel=1
+url='https://github.com/ocaml/ocamlbuild'
+license=('LGPL')
+depends=("${MINGW_PACKAGE_PREFIX}-ocaml")
+options=('!strip')
+source=("https://github.com/ocaml/${_realname}/archive/$pkgver.tar.gz")
+
+build() {
+  cd "$srcdir/${_realname}-$pkgver"
+  make configure
+  make
+}
+
+package() {
+  cd "$srcdir/${_realname}-$pkgver"
+  make DESTDIR=$pkgdir install
+}
+md5sums=('000d2ebad1333f9afcccdcd68c19f14d')
