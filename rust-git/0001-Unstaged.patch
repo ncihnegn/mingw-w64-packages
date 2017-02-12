@@ -1,115 +1,21 @@
-diff --git a/mk/main.mk b/mk/main.mk
-index 2c64645..9cd30be 100644
---- a/mk/main.mk
-+++ b/mk/main.mk
-@@ -175,7 +175,7 @@ endif
- # that the snapshot will be generated with a statically linked rustc so we only
- # have to worry about the distribution of one file (with its native dynamic
- # dependencies)
--RUSTFLAGS_STAGE0 += -C prefer-dynamic -C no-stack-check
-+RUSTFLAGS_STAGE0 += -C prefer-dynamic
- RUSTFLAGS_STAGE1 += -C prefer-dynamic
- RUST_LIB_FLAGS_ST2 += -C prefer-dynamic
- RUST_LIB_FLAGS_ST3 += -C prefer-dynamic
-diff --git a/src/bootstrap/dist.rs b/src/bootstrap/dist.rs
-index 9b0c7a0..e4a8cf7 100644
---- a/src/bootstrap/dist.rs
-+++ b/src/bootstrap/dist.rs
-@@ -461,7 +461,7 @@ pub fn rust_src(build: &Build, host: &str) {
-        .current_dir(&dst);
-     build.run(&mut cmd);
- 
--    t!(fs::remove_dir_all(&image));
-+    //t!(fs::remove_dir_all(&image));
- }
- 
- fn install(src: &Path, dstdir: &Path, perms: u32) {
-diff --git a/src/bootstrap/install.rs b/src/bootstrap/install.rs
-index 9bc5a7c..a94d4a8 100644
---- a/src/bootstrap/install.rs
-+++ b/src/bootstrap/install.rs
-@@ -13,8 +13,8 @@
- //! This module is responsible for installing the standard library,
- //! compiler, and documentation.
- 
-+use std::env;
- use std::fs;
--use std::borrow::Cow;
- use std::path::Path;
- use std::process::Command;
- 
-@@ -23,24 +23,27 @@ use dist::{package_vers, sanitize_sh, tmpdir};
- 
- /// Installs everything.
- pub fn install(build: &Build, stage: u32, host: &str) {
--    let prefix = build.config.prefix.as_ref().clone().map(|x| Path::new(x))
--        .unwrap_or(Path::new("/usr/local"));
--    let docdir = build.config.docdir.as_ref().clone().map(|x| Cow::Borrowed(Path::new(x)))
--        .unwrap_or(Cow::Owned(prefix.join("share/doc/rust")));
--    let libdir = build.config.libdir.as_ref().clone().map(|x| Cow::Borrowed(Path::new(x)))
--        .unwrap_or(Cow::Owned(prefix.join("lib")));
--    let mandir = build.config.mandir.as_ref().clone().map(|x| Cow::Borrowed(Path::new(x)))
--        .unwrap_or(Cow::Owned(prefix.join("share/man")));
-+    let destdir = env::var("DESTDIR").unwrap_or(String::from("/"));
-+    let mut prefix = build.config.prefix.clone().unwrap_or(String::from("/usr/local"));
-+    let docdir = format!("{}{}", destdir, build.config.docdir.clone().unwrap_or(format!("{}{}", prefix, "share/doc/rust")));
-+    let libdir = format!("{}{}", destdir, build.config.libdir.clone().unwrap_or(format!("{}{}", prefix, "lib/rust")));
-+    let mandir = format!("{}{}", destdir, build.config.mandir.clone().unwrap_or(format!("{}{}", prefix, "share/man")));
-     let empty_dir = build.out.join("tmp/empty_dir");
-+    prefix = format!("{}{}", destdir, prefix);
-+    let p_prefix = Path::new(&prefix);
-+    let p_docdir = Path::new(&docdir);
-+    let p_libdir = Path::new(&libdir);
-+    let p_mandir = Path::new(&mandir);
-+    t!(fs::create_dir_all(&prefix));
-     t!(fs::create_dir_all(&empty_dir));
-     if build.config.docs {
--        install_sh(&build, "docs", "rust-docs", stage, host, prefix,
--                   &docdir, &libdir, &mandir, &empty_dir);
-+        install_sh(&build, "docs", "rust-docs", stage, host, &p_prefix,
-+                   &p_docdir, &p_libdir, &p_mandir, &empty_dir);
-     }
--    install_sh(&build, "std", "rust-std", stage, host, prefix,
--               &docdir, &libdir, &mandir, &empty_dir);
--    install_sh(&build, "rustc", "rustc", stage, host, prefix,
--               &docdir, &libdir, &mandir, &empty_dir);
-+    install_sh(&build, "std", "rust-std", stage, host, &p_prefix,
-+               &p_docdir, &p_libdir, &p_mandir, &empty_dir);
-+    install_sh(&build, "rustc", "rustc", stage, host, &p_prefix,
-+               &p_docdir, &p_libdir, &p_mandir, &empty_dir);
-     t!(fs::remove_dir_all(&empty_dir));
- }
- 
 diff --git a/src/bootstrap/step.rs b/src/bootstrap/step.rs
-index 6a81f75..d6398ea 100644
+index ee5b61062f..819749f7c6 100644
 --- a/src/bootstrap/step.rs
 +++ b/src/bootstrap/step.rs
-@@ -566,7 +566,7 @@ pub fn build_rules<'a>(build: &'a Build) -> Rules {
-          .default(true)
+@@ -626,7 +626,7 @@ pub fn build_rules<'a>(build: &'a Build) -> Rules {
+          .only_host_build(true)
           .run(move |s| dist::std(build, &s.compiler(), s.target));
      rules.dist("dist-mingw", "path/to/nowhere")
 -         .default(true)
 +         .default(false)
+          .only_host_build(true)
           .run(move |s| {
               if s.target.contains("pc-windows-gnu") {
-                  dist::mingw(build, s.target)
-diff --git a/src/libpanic_unwind/gcc.rs b/src/libpanic_unwind/gcc.rs
-index e8b3a9a..916d64d 100644
---- a/src/libpanic_unwind/gcc.rs
-+++ b/src/libpanic_unwind/gcc.rs
-@@ -302,6 +302,7 @@ unsafe extern "C" fn rust_eh_unwind_resume(panic_ctx: *mut u8) -> ! {
- #[cfg(all(target_os="windows", target_arch = "x86", target_env="gnu"))]
- pub mod eh_frame_registry {
-     #[link(name = "gcc_eh")]
-+    #[link(name = "pthread")]
-     #[cfg(not(cargobuild))]
-     extern "C" {}
- 
 diff --git a/src/librustc_llvm/ffi.rs b/src/librustc_llvm/ffi.rs
-index 6815da4..486e830 100644
+index 8a958cf1ac..da9419cf9a 100644
 --- a/src/librustc_llvm/ffi.rs
 +++ b/src/librustc_llvm/ffi.rs
-@@ -1657,4 +1657,7 @@ extern "C" {
+@@ -1667,4 +1667,7 @@ extern "C" {
  // during llvm-config?
  #[cfg(windows)]
  #[link(name = "ole32")]
@@ -118,10 +24,10 @@ index 6815da4..486e830 100644
 +#[link(name = "pthread")]
  extern "C" {}
 diff --git a/src/libunwind/build.rs b/src/libunwind/build.rs
-index db41a36..83bbae2 100644
+index f18b694d3d..1de4b71164 100644
 --- a/src/libunwind/build.rs
 +++ b/src/libunwind/build.rs
-@@ -35,6 +35,7 @@ fn main() {
+@@ -33,6 +33,7 @@ fn main() {
          println!("cargo:rustc-link-lib=gcc_pic");
      } else if target.contains("windows-gnu") {
          println!("cargo:rustc-link-lib=gcc_eh");
@@ -129,15 +35,3 @@ index db41a36..83bbae2 100644
      } else if target.contains("fuchsia") {
          println!("cargo:rustc-link-lib=unwind");
      }
-diff --git a/src/libunwind/libunwind.rs b/src/libunwind/libunwind.rs
-index 269c2d6..aacd94a 100644
---- a/src/libunwind/libunwind.rs
-+++ b/src/libunwind/libunwind.rs
-@@ -269,5 +269,7 @@ if #[cfg(not(all(target_os = "ios", target_arch = "arm")))] {
-            link(name = "c++abi"))]
- #[cfg_attr(all(target_os = "windows", target_env = "gnu"),
-            link(name = "gcc_eh"))]
-+#[cfg_attr(all(target_os = "windows", target_env = "gnu"),
-+           link(name = "pthread"))]
- #[cfg(not(cargobuild))]
- extern "C" {}

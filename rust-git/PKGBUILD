@@ -2,7 +2,7 @@ _realname=rust
 pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}-git"
 pkgdesc='Rust, a system programming language'
 arch=('any')
-pkgver=1.16.0.20170101
+pkgver=1.17.0.20170212
 pkgrel=1
 url='http://www.rust-lang.org'
 license=('MIT' 'Apache 2.0')
@@ -17,7 +17,7 @@ source=(
 
 pkgver() {
   cd "${_realname}"
-  rel=`grep CFG_RELEASE_NUM= mk/main.mk | sed 's/CFG_RELEASE_NUM=//g'`
+  rel=`grep CFG_RELEASE_NUM: src/bootstrap/channel.rs | sed 's/.* = "//g' | sed 's/".*//g'`
   date=`git log -1 --date=short --pretty=format:'%cd' | sed 's/-//g'`
   echo $rel.$date
 }
@@ -29,6 +29,7 @@ prepare() {
 
 build() {
   cd "${_realname}"
+  #rm -rf build/tmp/dist/rust-src-\*-image
   patch -p1 < ../0001-Unstaged.patch
   ./configure --prefix=${MINGW_PREFIX} --llvm-root=${MINGW_PREFIX} --enable-fast-make --enable-ccache --enable-dist-host-only
   #--disable-rustbuild
@@ -42,7 +43,6 @@ check() {
 
 package() {
   cd "${_realname}"
-  rm -rf build/tmp/dist/rust-src-\*-image
   mkdir $pkgdir/${MINGW_PREFIX}
   DESTDIR=$pkgdir make install
   rm $pkgdir/${MINGW_PREFIX}/bin/libgcc*.dll
@@ -50,4 +50,4 @@ package() {
 }
 
 md5sums=('SKIP'
-         'fe7eeaf2801293be606b33932e4c8b85')
+         '04b951a5c6e984afdddc0012df80bc04')
