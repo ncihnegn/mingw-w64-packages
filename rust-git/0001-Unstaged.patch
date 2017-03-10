@@ -1,8 +1,8 @@
 diff --git a/src/bootstrap/step.rs b/src/bootstrap/step.rs
-index ee5b61062f..819749f7c6 100644
+index a5c0d11d21..ff34497613 100644
 --- a/src/bootstrap/step.rs
 +++ b/src/bootstrap/step.rs
-@@ -626,7 +626,7 @@ pub fn build_rules<'a>(build: &'a Build) -> Rules {
+@@ -667,7 +667,7 @@ pub fn build_rules<'a>(build: &'a Build) -> Rules {
           .only_host_build(true)
           .run(move |s| dist::std(build, &s.compiler(), s.target));
      rules.dist("dist-mingw", "path/to/nowhere")
@@ -11,11 +11,20 @@ index ee5b61062f..819749f7c6 100644
           .only_host_build(true)
           .run(move |s| {
               if s.target.contains("pc-windows-gnu") {
+@@ -675,7 +675,7 @@ pub fn build_rules<'a>(build: &'a Build) -> Rules {
+              }
+          });
+     rules.dist("dist-src", "src")
+-         .default(true)
++         .default(false)
+          .host(true)
+          .only_build(true)
+          .only_host_build(true)
 diff --git a/src/librustc_llvm/ffi.rs b/src/librustc_llvm/ffi.rs
-index 8a958cf1ac..da9419cf9a 100644
+index 26c7a9166e..ba6b4a42f3 100644
 --- a/src/librustc_llvm/ffi.rs
 +++ b/src/librustc_llvm/ffi.rs
-@@ -1667,4 +1667,7 @@ extern "C" {
+@@ -1668,4 +1668,7 @@ extern "C" {
  // during llvm-config?
  #[cfg(windows)]
  #[link(name = "ole32")]
@@ -24,10 +33,10 @@ index 8a958cf1ac..da9419cf9a 100644
 +#[link(name = "pthread")]
  extern "C" {}
 diff --git a/src/libunwind/build.rs b/src/libunwind/build.rs
-index f18b694d3d..1de4b71164 100644
+index ed3d5212bf..7dd53e2026 100644
 --- a/src/libunwind/build.rs
 +++ b/src/libunwind/build.rs
-@@ -33,6 +33,7 @@ fn main() {
+@@ -36,6 +36,7 @@ fn main() {
          println!("cargo:rustc-link-lib=gcc_pic");
      } else if target.contains("windows-gnu") {
          println!("cargo:rustc-link-lib=gcc_eh");
