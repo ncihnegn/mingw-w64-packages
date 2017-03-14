@@ -1,0 +1,20 @@
+diff --git a/Cargo.toml b/Cargo.toml
+index 3d46f440..55621e0c 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -25,12 +25,12 @@ env_logger = "0.4"
+ filetime = "0.1"
+ flate2 = "0.2"
+ fs2 = "0.4"
+-git2 = "0.6"
+-git2-curl = "0.7"
++git2 = { git = "https://github.com/alexcrichton/git2-rs" }
++git2-curl = { git = "https://github.com/alexcrichton/git2-rs" }
+ glob = "0.2"
+ handlebars = { version = "0.25", features = ["serde_type", "partial4"], default-features = false }
+ libc = "0.2"
+-libgit2-sys = "0.6"
++libgit2-sys = { git = "https://github.com/alexcrichton/git2-rs" }
+ log = "0.3"
+ num_cpus = "1.0"
+ rustc-serialize = "0.3"

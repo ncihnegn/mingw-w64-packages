@@ -4,7 +4,7 @@ _realname=cargo
 pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}-git"
 pkgdesc='The Rust package manager'
 arch=('any')
-pkgver=0.16.0.20161216
+pkgver=0.18.0.20170313
 pkgrel=1
 url='https://crates.io'
 license=('MIT' 'Apache')
@@ -12,9 +12,9 @@ depends=("${MINGW_PACKAGE_PREFIX}-rust-git")
 makedepends=("${MINGW_PACKAGE_PREFIX}-python3" "${MINGW_PACKAGE_PREFIX}-cmake")
 source=(
   'git+https://github.com/rust-lang/cargo'
+  '0001-Unstaged.patch'
 )
 install='cargo.install'
-md5sums=('SKIP')
 
 pkgver() {
   cd "${_realname}"
@@ -26,6 +26,7 @@ pkgver() {
 prepare() {
   cd "${_realname}"
   git submodule update --init
+  patch -p1 < ../0001-Unstaged.patch
 }
 
 build() {
@@ -49,3 +50,11 @@ package() {
   rm $pkgdir${MINGW_PREFIX}/lib/rustlib/uninstall.sh
 }
 
+md5sums=('SKIP'
+         '020fac4103488d029ac686c1cee96d1b')
+md5sums=('SKIP'
+         '98eb4e54de07297d3852fb9737563193')
+md5sums=('SKIP'
+         '5a468bb7d5443c9b626172243cdbf68a')
+md5sums=('SKIP'
+         'a4a4e9392badcc361e36d120cd50c684')
