@@ -3,8 +3,8 @@ pkgbase=mingw-w64-${_realname}
 pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
 pkgdesc='The Glorious Glasgow Haskell Compilation System'
 arch=('any')
-pkgver=8.0.1
-pkgrel=1
+pkgver=8.0.2
+pkgrel=3
 url='http://www.haskell.org/ghc/'
 license=('The Glasgow Haskell Compiler License')
 depends=("${MINGW_PACKAGE_PREFIX}-binutils"
@@ -20,7 +20,8 @@ depends=("${MINGW_PACKAGE_PREFIX}-binutils"
          "${MINGW_PACKAGE_PREFIX}-mpfr"
          "${MINGW_PACKAGE_PREFIX}-winpthreads-git"
          "${MINGW_PACKAGE_PREFIX}-zlib")
-makedepends=('perl' 'unzip' "${MINGW_PACKAGE_PREFIX}-python3-sphinx")
+makedepends=('perl' 'unzip' "${MINGW_PACKAGE_PREFIX}-python3-sphinx"
+            "${MINGW_PACKAGE_PREFIX}-ghc")
 optdepends=("${MINGW_PACKAGE_PREFIX}-llvm: using LLVM as backend")
 options=('!strip')
 source=(
@@ -28,15 +29,11 @@ source=(
   "http://downloads.haskell.org/~ghc/$pkgver/ghc-$pkgver-testsuite.tar.xz"
   'build.mk'
   '0001-Rework-CC-CC_STAGE0-handling-in-configure.ac.patch'
-  '0001-Add-Windows-import-library-support-to-the-Runtime-Li.patch'
   '0001-Remove-special-casing-of-Windows-in-generic-files.patch'
-  '0001-Enable-checkProddableBlock-on-x86_64.patch'
-  '0001-Add-relocation-type-R_X86_64_REX_GOTPCRELX.patch'
-  '0001-Fix-incorrect-calculated-relocations-on-Windows-x86_.patch'
   '0001-Switch-to-LLVM-version-3.8.patch'
   '0001-configure.ac-Remove-checks-for-bug-9439.patch'
-  '0001-Fix-configure-detection.patch'
   '0001-Unstaged.patch'
+  '0002-Fix-Windows-GCC-driver.patch'
 )
 
 prepare() {
@@ -44,28 +41,24 @@ prepare() {
   if [[ $SYST == "i686" ]]; then
      SYST="i386"
   fi
-  mkdir -p host
-  curl -LO "https://www.haskell.org/cabal/release/cabal-install-1.24.0.0/cabal-install-1.24.0.0-$SYST-unknown-mingw32.zip"
-  curl -L "http://downloads.haskell.org/~${_realname}/$pkgver/${_realname}-$pkgver-$SYST-unknown-mingw32.tar.xz" | tar -Jx --strip-components=1 --directory=host
-  unzip -o cabal-install-1.24.0.0-$SYST-unknown-mingw32.zip -d host/bin
-  export PATH=$srcdir/host/bin:$PATH
-  cabal update
-  cabal install alex happy --prefix=$srcdir/host
+  #mkdir -p host
+  #curl -LO "https://www.haskell.org/cabal/release/cabal-install-1.24.0.0/cabal-install-1.24.0.0-$SYST-unknown-mingw32.zip"
+  #curl -L "http://downloads.haskell.org/~${_realname}/$pkgver/${_realname}-$pkgver-$SYST-unknown-mingw32.tar.xz" | tar -Jx --strip-components=1 --directory=host
+  #unzip -o cabal-install-1.24.0.0-$SYST-unknown-mingw32.zip -d host/bin
+  #export PATH=$srcdir/host/bin:$PATH
+  #cabal update
+  #cabal install alex happy --prefix=$srcdir/host
   cp build.mk "$srcdir/${_realname}-$pkgver/mk"
   patch -d "$srcdir/${_realname}-$pkgver" -p1 < 0001-Rework-CC-CC_STAGE0-handling-in-configure.ac.patch
-  patch -d "$srcdir/${_realname}-$pkgver" -p1 < 0001-Add-Windows-import-library-support-to-the-Runtime-Li.patch
   patch -d "$srcdir/${_realname}-$pkgver" -p1 < 0001-Remove-special-casing-of-Windows-in-generic-files.patch
-  patch -d "$srcdir/${_realname}-$pkgver" -p1 < 0001-Enable-checkProddableBlock-on-x86_64.patch
-  patch -d "$srcdir/${_realname}-$pkgver" -p1 < 0001-Add-relocation-type-R_X86_64_REX_GOTPCRELX.patch
-  patch -d "$srcdir/${_realname}-$pkgver" -p1 < 0001-Fix-incorrect-calculated-relocations-on-Windows-x86_.patch
   patch -d "$srcdir/${_realname}-$pkgver" -p1 < 0001-Switch-to-LLVM-version-3.8.patch
   patch -d "$srcdir/${_realname}-$pkgver" -p1 < 0001-configure.ac-Remove-checks-for-bug-9439.patch
-  patch -d "$srcdir/${_realname}-$pkgver" -p1 < 0001-Fix-configure-detection.patch
   patch -d "$srcdir/${_realname}-$pkgver" -p1 < 0001-Unstaged.patch
+  patch -d "$srcdir/${_realname}-$pkgver" -p1 < 0002-Fix-Windows-GCC-driver.patch
 }
 
 build() {
-  export PATH=$srcdir/host/bin:$PATH
+  #export PATH=$srcdir/host/bin:$PATH
   cd "$srcdir/${_realname}-$pkgver"
   ./boot
   ./configure --prefix=${MINGW_PREFIX}
@@ -75,28 +68,24 @@ build() {
 }
 
 check() {
-  export PATH=$srcdir/host/bin:$PATH
+  #export PATH=$srcdir/host/bin:$PATH
   cd "$srcdir/${_realname}-$pkgver"
   make test
 }
 
 package() {
-  export PATH=$srcdir/host/bin:$PATH
+  #export PATH=$srcdir/host/bin:$PATH
   cd "$srcdir/${_realname}-$pkgver"
   make binary-dist
   mv bindistprep/${_realname}-$pkgver "$pkgdir"${MINGW_PREFIX}
 }
 
-md5sums=('c185b8a1f3e67e43533ec590b751c2ff'
-         '289e4b030a3e36cdcae7d35553a1c658'
+md5sums=('d0afb5ec441b14527a53d2445cc26ec3'
+         '99e3afdb7f4898f4d20dd14fbc3e1fe0'
          'c6f5e6f59fba0b94da201131c665a530'
-         'b68f5887575becd05feb010211a95164'
-         '9420b494411a3e9faf743102fcff528b'
+         '07d44c6fe91e4fb67ec0639fcb742e4c'
          '505e49f6ce1c89b7ae1b5d7233762567'
-         '3c094d3c1a49de3c0eb3398733bb001c'
-         '82ef617a59ec0e536e3e428aba9e7557'
-         'e25a592304825be687b645049eba3bc5'
-         '3db250cba393fdd3713c422a815e7d85'
+         'ff74bdd7e77b919f06aa19ea1d08a19e'
          '769794184c2e50cb36cadcddc8b4f906'
-         '08f498c8ec46c1e9d0afb645c1bdc104'
-         'ac49ab508c167c6fe1b548fcd6e2398e')
+         '696b3abe319d75c24fbf5900bb4262a5'
+         'bab4f1594abc6970e27c2e270782a16f')

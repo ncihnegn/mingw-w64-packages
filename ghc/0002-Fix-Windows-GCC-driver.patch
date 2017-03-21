@@ -1,0 +1,54 @@
+From 4b673e804fb8598dac02596f107544c7f2ea263b Mon Sep 17 00:00:00 2001
+From: Tamar Christina <tamar@zhox.com>
+Date: Tue, 14 Mar 2017 13:31:36 -0400
+Subject: [PATCH] Fix Windows GCC driver
+
+In Windows 10 Insiders build 15019+ which will probably be released
+mainstream somewhere this year Microsoft seems to have started being
+stricter with API calls.
+
+The call to `FreeConsole` just after `CreateProcess` is making Windows
+treat the process
+as an interactive process. In which case it tries to use the `Desktop
+session` but fails resulting
+in the cryptic error reported.
+
+I don't understand why the call to `FreeConsole` was there and it
+doesn't seem to be needed,
+so removed.
+
+This fixes #13411
+
+Test Plan: ./validate, alternative just do anything with ghc which
+requires compilation.
+
+Reviewers: austin, bgamari, simonmar
+
+Reviewed By: bgamari
+
+Subscribers: rwbarton, thomie, #ghc_windows_task_force
+
+Differential Revision: https://phabricator.haskell.org/D3319
+---
+ driver/utils/cwrapper.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
+
+diff --git a/driver/utils/cwrapper.c b/driver/utils/cwrapper.c
+index 5105924..da6cec4 100644
+--- a/driver/utils/cwrapper.c
++++ b/driver/utils/cwrapper.c
+@@ -130,11 +130,9 @@ __attribute__((noreturn)) int run (char *exePath,
+                        &pi) ) {
+         die("Unable to start %s (error code: %lu)\n", exePath, GetLastError());
+     }
+-    /* Disable handling of console events in the parent by dropping its
+-     * connection to the console. This has the (minor) downside of not being
+-     * able to subsequently emit any error messages to the console.
+-     */
+-    FreeConsole();
++
++    /* Synchronize input and wait for target to be ready.  */
++    WaitForInputIdle(pi.hProcess, INFINITE);
+ 
+     switch (WaitForSingleObject(pi.hProcess, INFINITE) ) {
+     case WAIT_OBJECT_0:
