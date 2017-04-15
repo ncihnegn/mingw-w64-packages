@@ -2,7 +2,7 @@ _realname=rust
 pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}-git"
 pkgdesc='Rust, a system programming language'
 arch=('any')
-pkgver=1.17.0.20170310
+pkgver=1.18.0.20170415
 pkgrel=1
 url='http://www.rust-lang.org'
 license=('MIT' 'Apache 2.0')
@@ -47,7 +47,8 @@ package() {
   DESTDIR=$pkgdir make install
   rm $pkgdir/${MINGW_PREFIX}/bin/libgcc*.dll
   rm $pkgdir/${MINGW_PREFIX}/bin/libstdc*.dll
+  rm $pkgdir/${MINGW_PREFIX}/bin/libwinpthread*.dll
 }
 
 md5sums=('SKIP'
-         '473c7347df4edd9785a3f5ea10a824c7')
+         '0f102789a8404d58b42baba1475b1cd1')

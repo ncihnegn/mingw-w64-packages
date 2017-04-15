@@ -1,8 +1,8 @@
 diff --git a/src/bootstrap/step.rs b/src/bootstrap/step.rs
-index a5c0d11d21..ff34497613 100644
+index 6008fa81c6..1f666e0a29 100644
 --- a/src/bootstrap/step.rs
 +++ b/src/bootstrap/step.rs
-@@ -667,7 +667,7 @@ pub fn build_rules<'a>(build: &'a Build) -> Rules {
+@@ -711,7 +711,7 @@ pub fn build_rules<'a>(build: &'a Build) -> Rules {
           .only_host_build(true)
           .run(move |s| dist::std(build, &s.compiler(), s.target));
      rules.dist("dist-mingw", "path/to/nowhere")
@@ -11,7 +11,7 @@ index a5c0d11d21..ff34497613 100644
           .only_host_build(true)
           .run(move |s| {
               if s.target.contains("pc-windows-gnu") {
-@@ -675,7 +675,7 @@ pub fn build_rules<'a>(build: &'a Build) -> Rules {
+@@ -719,7 +719,7 @@ pub fn build_rules<'a>(build: &'a Build) -> Rules {
               }
           });
      rules.dist("dist-src", "src")
@@ -20,27 +20,16 @@ index a5c0d11d21..ff34497613 100644
           .host(true)
           .only_build(true)
           .only_host_build(true)
-diff --git a/src/librustc_llvm/ffi.rs b/src/librustc_llvm/ffi.rs
-index 26c7a9166e..ba6b4a42f3 100644
---- a/src/librustc_llvm/ffi.rs
-+++ b/src/librustc_llvm/ffi.rs
-@@ -1668,4 +1668,7 @@ extern "C" {
- // during llvm-config?
- #[cfg(windows)]
- #[link(name = "ole32")]
-+#[link(name = "ffi")]
-+#[link(name = "gcc_eh")]
-+#[link(name = "pthread")]
- extern "C" {}
-diff --git a/src/libunwind/build.rs b/src/libunwind/build.rs
-index ed3d5212bf..7dd53e2026 100644
---- a/src/libunwind/build.rs
-+++ b/src/libunwind/build.rs
-@@ -36,6 +36,7 @@ fn main() {
-         println!("cargo:rustc-link-lib=gcc_pic");
-     } else if target.contains("windows-gnu") {
-         println!("cargo:rustc-link-lib=gcc_eh");
+diff --git a/src/librustc_llvm/build.rs b/src/librustc_llvm/build.rs
+index a8def4bafd..7b389fecfd 100644
+--- a/src/librustc_llvm/build.rs
++++ b/src/librustc_llvm/build.rs
+@@ -267,5 +267,8 @@ fn main() {
+     // during llvm-config?
+     if target.contains("windows") {
+         println!("cargo:rustc-link-lib=ole32");
++        println!("cargo:rustc-link-lib=ffi");
++        println!("cargo:rustc-link-lib=gcc_eh");
 +        println!("cargo:rustc-link-lib=pthread");
-     } else if target.contains("fuchsia") {
-         println!("cargo:rustc-link-lib=unwind");
      }
+ }
