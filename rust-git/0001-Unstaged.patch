@@ -1,30 +1,36 @@
+diff --git a/src/bootstrap/lib.rs b/src/bootstrap/lib.rs
+index ea0b521a2c..e82c0acd15 100644
+--- a/src/bootstrap/lib.rs
++++ b/src/bootstrap/lib.rs
+@@ -360,6 +360,10 @@ impl Build {
+         self.run(git_submodule().arg("sync"));
+ 
+         for submodule in submodules {
++            if submodule.path.components().any(|c| c == Component::Normal("rust-installer".as_ref()))
++            {
++                continue
++            }
+             // If using llvm-root then don't touch the llvm submodule.
+             if submodule.path.components().any(|c| c == Component::Normal("llvm".as_ref())) &&
+                 self.config.target_config.get(&self.config.build)
 diff --git a/src/bootstrap/step.rs b/src/bootstrap/step.rs
-index 6008fa81c6..1f666e0a29 100644
+index 92666e8e63..e00009fd4e 100644
 --- a/src/bootstrap/step.rs
 +++ b/src/bootstrap/step.rs
-@@ -711,7 +711,7 @@ pub fn build_rules<'a>(build: &'a Build) -> Rules {
-          .only_host_build(true)
+@@ -726,7 +726,7 @@ pub fn build_rules<'a>(build: &'a Build) -> Rules {
+          .dep(move |s| tool_rust_installer(build, s))
           .run(move |s| dist::std(build, &s.compiler(), s.target));
      rules.dist("dist-mingw", "path/to/nowhere")
 -         .default(true)
 +         .default(false)
           .only_host_build(true)
+          .dep(move |s| tool_rust_installer(build, s))
           .run(move |s| {
-              if s.target.contains("pc-windows-gnu") {
-@@ -719,7 +719,7 @@ pub fn build_rules<'a>(build: &'a Build) -> Rules {
-              }
-          });
-     rules.dist("dist-src", "src")
--         .default(true)
-+         .default(false)
-          .host(true)
-          .only_build(true)
-          .only_host_build(true)
 diff --git a/src/librustc_llvm/build.rs b/src/librustc_llvm/build.rs
-index a8def4bafd..7b389fecfd 100644
+index 3fd7514619..7c202b80e2 100644
 --- a/src/librustc_llvm/build.rs
 +++ b/src/librustc_llvm/build.rs
-@@ -267,5 +267,8 @@ fn main() {
+@@ -277,6 +277,9 @@ fn main() {
      // during llvm-config?
      if target.contains("windows") {
          println!("cargo:rustc-link-lib=ole32");
@@ -32,4 +38,5 @@ index a8def4bafd..7b389fecfd 100644
 +        println!("cargo:rustc-link-lib=gcc_eh");
 +        println!("cargo:rustc-link-lib=pthread");
      }
- }
+     if target.contains("windows-gnu") {
+         println!("cargo:rustc-link-lib=static-nobundle=gcc_s");
