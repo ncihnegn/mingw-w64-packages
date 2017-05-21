@@ -1,20 +1,5 @@
-diff --git a/src/bootstrap/lib.rs b/src/bootstrap/lib.rs
-index ea0b521a2c..e82c0acd15 100644
---- a/src/bootstrap/lib.rs
-+++ b/src/bootstrap/lib.rs
-@@ -360,6 +360,10 @@ impl Build {
-         self.run(git_submodule().arg("sync"));
- 
-         for submodule in submodules {
-+            if submodule.path.components().any(|c| c == Component::Normal("rust-installer".as_ref()))
-+            {
-+                continue
-+            }
-             // If using llvm-root then don't touch the llvm submodule.
-             if submodule.path.components().any(|c| c == Component::Normal("llvm".as_ref())) &&
-                 self.config.target_config.get(&self.config.build)
 diff --git a/src/bootstrap/step.rs b/src/bootstrap/step.rs
-index 92666e8e63..e00009fd4e 100644
+index 57915446e1..36ff05f8b8 100644
 --- a/src/bootstrap/step.rs
 +++ b/src/bootstrap/step.rs
 @@ -726,7 +726,7 @@ pub fn build_rules<'a>(build: &'a Build) -> Rules {
@@ -27,16 +12,14 @@ index 92666e8e63..e00009fd4e 100644
           .dep(move |s| tool_rust_installer(build, s))
           .run(move |s| {
 diff --git a/src/librustc_llvm/build.rs b/src/librustc_llvm/build.rs
-index 3fd7514619..7c202b80e2 100644
+index ba56885795..01c128eab0 100644
 --- a/src/librustc_llvm/build.rs
 +++ b/src/librustc_llvm/build.rs
-@@ -277,6 +277,9 @@ fn main() {
+@@ -276,6 +276,7 @@ fn main() {
+     // LLVM requires symbols from this library, but apparently they're not printed
      // during llvm-config?
-     if target.contains("windows") {
-         println!("cargo:rustc-link-lib=ole32");
-+        println!("cargo:rustc-link-lib=ffi");
-+        println!("cargo:rustc-link-lib=gcc_eh");
-+        println!("cargo:rustc-link-lib=pthread");
-     }
      if target.contains("windows-gnu") {
++        println!("cargo:rustc-link-lib=static-nobundle=ffi");
          println!("cargo:rustc-link-lib=static-nobundle=gcc_s");
+         println!("cargo:rustc-link-lib=static-nobundle=pthread");
+     }
