@@ -2,7 +2,7 @@ _realname=rust
 pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}-git"
 pkgdesc='Rust, a system programming language'
 arch=('any')
-pkgver=1.19.0.20170520
+pkgver=1.20.0.20170622
 pkgrel=1
 url='http://www.rust-lang.org'
 license=('MIT' 'Apache 2.0')
@@ -13,7 +13,6 @@ install='rust.install'
 source=(
   'git+https://github.com/rust-lang/rust'
   '0001-Unstaged.patch'
-  '0001-rust-installer-Unstaged.patch'
 )
 
 pkgver() {
@@ -30,8 +29,6 @@ prepare() {
   git rm -rf src/llvm
   git submodule update --init
   patch -p1 < $srcdir/0001-Unstaged.patch
-  cd src/tools/rust-installer
-  patch -p1 < $srcdir/0001-rust-installer-Unstaged.patch
 }
 
 build() {
@@ -57,5 +54,4 @@ package() {
 }
 
 md5sums=('SKIP'
-         '182107bab5b301edeea49d1bd8496bae'
-         'a7c1a42128121a6f6701f2f3dd9da008')
+         '182107bab5b301edeea49d1bd8496bae')
