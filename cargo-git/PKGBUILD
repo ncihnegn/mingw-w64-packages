@@ -4,7 +4,7 @@ _realname=cargo
 pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}-git"
 pkgdesc='The Rust package manager'
 arch=('any')
-pkgver=0.19.0.20170412
+pkgver=0.21.0.20170624
 pkgrel=1
 url='https://crates.io'
 license=('MIT' 'Apache')
@@ -13,7 +13,6 @@ makedepends=("${MINGW_PACKAGE_PREFIX}-python3" "${MINGW_PACKAGE_PREFIX}-cmake")
 source=(
   'git+https://github.com/rust-lang/cargo'
 )
-install='cargo.install'
 
 pkgver() {
   cd "${_realname}"
@@ -29,23 +28,17 @@ prepare() {
 
 build() {
   cd "${_realname}"
-  ./configure --prefix=${MINGW_PREFIX}
-  make -j2
+  cargo build
 }
 
 check() {
   cd "${_realname}"
-  make test
+  cargo test
 }
 
 package() {
   cd "${_realname}"
-  mkdir -p $pkgdir${MINGW_PREFIX}/lib/rustlib
-  make DESTDIR=$pkgdir install
-  rm $pkgdir${MINGW_PREFIX}/lib/rustlib/components
-  rm $pkgdir${MINGW_PREFIX}/lib/rustlib/install.log
-  rm $pkgdir${MINGW_PREFIX}/lib/rustlib/rust-installer-version
-  rm $pkgdir${MINGW_PREFIX}/lib/rustlib/uninstall.sh
+  cargo install --root $pkgdir/${MINGW_PREFIX}
 }
 
 md5sums=('SKIP')

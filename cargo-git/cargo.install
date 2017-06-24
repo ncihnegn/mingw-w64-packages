@@ -1,7 +1,0 @@
-post_install() {
-        echo "cargo" >> ${MINGW_PREFIX}/lib/rustlib/components
-}
-
-post_remove() {
-        sed -i '/cargo/d' ${MINGW_PREFIX}/lib/rustlib/components
-}
